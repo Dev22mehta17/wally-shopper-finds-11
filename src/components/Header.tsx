@@ -49,11 +49,13 @@ export const Header = () => {
 
         {/* Right side actions */}
         <div className="flex items-center space-x-2">
-          <Button variant="ghost" size="icon" className="relative">
-            <ShoppingCart className="h-5 w-5" />
-            <span className="absolute -top-1 -right-1 h-4 w-4 bg-primary text-primary-foreground rounded-full flex items-center justify-center text-xs">
-              3
-            </span>
+          <Button variant="ghost" size="icon" className="relative" asChild>
+            <Link to="/cart">
+              <ShoppingCart className="h-5 w-5" />
+              <span className="absolute -top-1 -right-1 h-4 w-4 bg-primary text-primary-foreground rounded-full flex items-center justify-center text-xs">
+                3
+              </span>
+            </Link>
           </Button>
           
           <Link to="/login">
