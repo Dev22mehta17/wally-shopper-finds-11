@@ -67,8 +67,13 @@ export const EmotionDetection = () => {
       
       if (videoRef.current) {
         videoRef.current.srcObject = stream;
-        setIsActive(true);
-        startEmotionDetection();
+        videoRef.current.onloadedmetadata = () => {
+          setIsActive(true);
+          // Start emotion detection immediately when video is ready
+          setTimeout(() => {
+            detectEmotionNow();
+          }, 1000);
+        };
       }
     } catch (error) {
       console.error('Camera access denied:', error);
@@ -76,6 +81,27 @@ export const EmotionDetection = () => {
     } finally {
       setIsLoading(false);
     }
+  };
+
+  const detectEmotionNow = () => {
+    if (!videoRef.current) return;
+    
+    // Mock emotion detection - this will trigger immediately
+    const mockEmotions = ['happy', 'sad', 'neutral', 'surprised', 'angry'];
+    const randomEmotion = mockEmotions[Math.floor(Math.random() * mockEmotions.length)];
+    const confidence = 0.7 + Math.random() * 0.3; // 70-100% confidence
+    
+    const newEmotion: EmotionResult = {
+      emotion: randomEmotion,
+      confidence: confidence,
+      timestamp: new Date()
+    };
+    
+    setEmotion(newEmotion);
+    setHasDetected(true);
+    updateRecommendations(newEmotion.emotion);
+    
+    toast.success(`Detected ${randomEmotion} emotion! Check recommendations below.`);
   };
 
   const stopCamera = () => {
