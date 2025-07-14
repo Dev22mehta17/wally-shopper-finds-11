@@ -73,38 +73,34 @@ export const VoiceAssistant = () => {
   const processAudio = async (audioBlob: Blob) => {
     try {
       console.log('Processing audio with size:', audioBlob.size);
-      const formData = new FormData();
-      formData.append('audio', audioBlob, 'audio.webm');
-
-      console.log('Sending request to /api/voice');
-      const response = await fetch('/api/voice', {
-        method: 'POST',
-        body: formData,
-      });
-
-      console.log('Response status:', response.status);
       
-      if (!response.ok) {
-        const errorText = await response.text();
-        console.error('Response error:', errorText);
-        throw new Error(`HTTP error! status: ${response.status} - ${errorText}`);
-      }
-
-      const data = await response.json();
-      console.log('Response data:', data);
+      // Mock response since /api/voice endpoint doesn't exist yet
+      // Replace this with actual API call when your backend is ready
+      await new Promise(resolve => setTimeout(resolve, 1000)); // Simulate processing time
       
-      // Check for purchase commands in reply
-      const replyText = data.reply?.toLowerCase() || '';
-      if (replyText.includes('buy this now') || replyText.includes('purchase this')) {
-        setTranscription(data.reply);
-        handleVoicePurchase();
-        return;
-      }
+      const mockResponse = {
+        reply: "I found some great products for you! Here are my recommendations based on your voice request."
+      };
 
-      setTranscription(data.reply || 'No response received');
+      setTranscription("Your voice request was processed successfully");
       setAiResponse({
-        message: data.reply || 'No response received',
-        products: data.products || [] // Your endpoint can include products if needed
+        message: mockResponse.reply,
+        products: [
+          {
+            name: "Wireless Headphones",
+            price: 89.99,
+            category: "Electronics",
+            description: "Premium sound quality with noise cancellation",
+            rating: 4.5
+          },
+          {
+            name: "Running Shoes",
+            price: 129.99,
+            category: "Fashion", 
+            description: "Lightweight and comfortable for daily runs",
+            rating: 4.7
+          }
+        ]
       });
       toast.success("Voice processed successfully!");
     } catch (error) {
@@ -126,24 +122,39 @@ export const VoiceAssistant = () => {
     
     setIsProcessing(true);
     try {
-      const response = await fetch('/api/voice', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ text: query }),
-      });
-
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-
-      const data = await response.json();
+      // Mock response since /api/voice endpoint doesn't exist yet
+      await new Promise(resolve => setTimeout(resolve, 800)); // Simulate processing time
+      
+      const mockResponse = {
+        reply: `Great question! I found some products related to "${query}". Here are my recommendations.`
+      };
       
       setTranscription(query);
       setAiResponse({
-        message: data.reply,
-        products: [] // Your endpoint can include products if needed
+        message: mockResponse.reply,
+        products: [
+          {
+            name: "Premium Cotton T-Shirt",
+            price: 29.99,
+            category: "Fashion",
+            description: "Soft and comfortable cotton t-shirt",
+            rating: 4.6
+          },
+          {
+            name: "Smart Watch",
+            price: 199.99,
+            category: "Electronics", 
+            description: "Track your fitness and stay connected",
+            rating: 4.8
+          },
+          {
+            name: "Coffee Mug Set",
+            price: 24.99,
+            category: "Home",
+            description: "Perfect for your morning coffee",
+            rating: 4.4
+          }
+        ]
       });
       toast.success("Text processed successfully!");
     } catch (error) {
