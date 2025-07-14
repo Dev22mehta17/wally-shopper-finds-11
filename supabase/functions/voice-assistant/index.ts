@@ -27,7 +27,6 @@ serve(async (req) => {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${openaiApiKey}`,
-          'Content-Type': 'multipart/form-data',
         },
         body: (() => {
           const formData = new FormData();
