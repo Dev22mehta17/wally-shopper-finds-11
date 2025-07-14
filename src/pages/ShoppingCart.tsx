@@ -9,6 +9,7 @@ import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { ShoppingCart as ShoppingCartIcon, CreditCard, Truck, Shield, AlertTriangle } from "lucide-react";
 import { toast } from "sonner";
+import { Link } from "react-router-dom";
 
 // Mock cart data for demo
 const mockCartItems: CartItemData[] = [
@@ -177,15 +178,16 @@ export default function ShoppingCart() {
                   <span>${total.toFixed(2)}</span>
                 </div>
 
-                <Button 
-                  className="w-full" 
-                  size="lg"
-                  disabled={cartItems.length === 0}
-                  onClick={() => toast.success("Proceeding to checkout...")}
-                >
-                  <CreditCard className="h-4 w-4 mr-2" />
-                  Proceed to Checkout
-                </Button>
+                <Link to="/checkout">
+                  <Button 
+                    className="w-full" 
+                    size="lg"
+                    disabled={cartItems.length === 0}
+                  >
+                    <CreditCard className="h-4 w-4 mr-2" />
+                    Proceed to Checkout
+                  </Button>
+                </Link>
 
                 {subtotal < 50 && cartItems.length > 0 && (
                   <div className="text-xs text-muted-foreground text-center p-2 bg-muted/50 rounded">

@@ -9,6 +9,7 @@ import Recommendations from "./pages/Recommendations";
 import EmotionShopping from "./pages/EmotionShopping";
 import VoiceShopping from "./pages/VoiceShopping";
 import ShoppingCart from "./pages/ShoppingCart";
+import Checkout from "./pages/Checkout";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -26,6 +27,7 @@ const App = () => (
           <Route path="/emotion-shopping" element={<EmotionShopping />} />
           <Route path="/voice-shopping" element={<VoiceShopping />} />
           <Route path="/cart" element={<ShoppingCart />} />
+          <Route path="/checkout" element={<Checkout />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>

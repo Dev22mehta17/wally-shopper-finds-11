@@ -5,6 +5,7 @@ import { Badge } from "@/components/ui/badge";
 import { Mic, MicOff, Loader2, Star, ShoppingCart } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
+import { useNavigate } from "react-router-dom";
 
 interface Product {
   name: string;
@@ -26,6 +27,7 @@ export const VoiceAssistant = () => {
   const [aiResponse, setAiResponse] = useState<AIResponse | null>(null);
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const audioChunksRef = useRef<Blob[]>([]);
+  const navigate = useNavigate();
 
   const startListening = async () => {
     try {
@@ -61,6 +63,13 @@ export const VoiceAssistant = () => {
     }
   };
 
+  const handleVoicePurchase = () => {
+    toast.success("Voice purchase confirmed! Redirecting to checkout...");
+    setTimeout(() => {
+      navigate('/checkout');
+    }, 1500);
+  };
+
   const processAudio = async (audioBlob: Blob) => {
     try {
       const arrayBuffer = await audioBlob.arrayBuffer();
@@ -72,6 +81,14 @@ export const VoiceAssistant = () => {
 
       if (error) {
         throw new Error(error.message);
+      }
+
+      // Check for purchase commands in transcription
+      const transcriptionText = data.transcription?.toLowerCase() || '';
+      if (transcriptionText.includes('buy this now') || transcriptionText.includes('purchase this')) {
+        setTranscription(data.transcription);
+        handleVoicePurchase();
+        return;
       }
 
       setTranscription(data.transcription);
@@ -87,6 +104,12 @@ export const VoiceAssistant = () => {
 
   const processTextQuery = async (query: string) => {
     if (!query.trim()) return;
+    
+    // Check for purchase commands
+    if (query.toLowerCase().includes('buy this now') || query.toLowerCase().includes('purchase this')) {
+      handleVoicePurchase();
+      return;
+    }
     
     setIsProcessing(true);
     try {
@@ -119,7 +142,7 @@ export const VoiceAssistant = () => {
             Voice Shopping Assistant
           </CardTitle>
           <CardDescription>
-            Ask me anything! "Suggest gifts for my brother" or "I want something comfy for rainy days"
+            Ask me anything! "Suggest gifts for my brother", "I want something comfy for rainy days", or say "Buy this now" for voice purchase
           </CardDescription>
         </CardHeader>
         <CardContent className="text-center space-y-4">
