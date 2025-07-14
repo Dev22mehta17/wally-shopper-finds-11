@@ -72,28 +72,34 @@ export const VoiceAssistant = () => {
 
   const processAudio = async (audioBlob: Blob) => {
     try {
-      const arrayBuffer = await audioBlob.arrayBuffer();
-      const base64Audio = btoa(String.fromCharCode(...new Uint8Array(arrayBuffer)));
+      const formData = new FormData();
+      formData.append('audio', audioBlob, 'audio.webm');
 
-      const { data, error } = await supabase.functions.invoke('voice-assistant', {
-        body: { audio: base64Audio },
+      const response = await fetch('/api/voice', {
+        method: 'POST',
+        body: formData,
       });
 
-      if (error) {
-        throw new Error(error.message);
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
       }
 
-      // Check for purchase commands in transcription
-      const transcriptionText = data.transcription?.toLowerCase() || '';
-      if (transcriptionText.includes('buy this now') || transcriptionText.includes('purchase this')) {
-        setTranscription(data.transcription);
+      const data = await response.json();
+      
+      // Check for purchase commands in reply
+      const replyText = data.reply?.toLowerCase() || '';
+      if (replyText.includes('buy this now') || replyText.includes('purchase this')) {
+        setTranscription(data.reply);
         handleVoicePurchase();
         return;
       }
 
-      setTranscription(data.transcription);
-      setAiResponse(data.response);
-      toast.success("Found some great suggestions for you!");
+      setTranscription(data.reply);
+      setAiResponse({
+        message: data.reply,
+        products: [] // Your endpoint can include products if needed
+      });
+      toast.success("Voice processed successfully!");
     } catch (error) {
       toast.error("Failed to process your request");
       console.error(error);
