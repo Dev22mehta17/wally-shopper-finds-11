@@ -72,19 +72,26 @@ export const VoiceAssistant = () => {
 
   const processAudio = async (audioBlob: Blob) => {
     try {
+      console.log('Processing audio with size:', audioBlob.size);
       const formData = new FormData();
       formData.append('audio', audioBlob, 'audio.webm');
 
+      console.log('Sending request to /api/voice');
       const response = await fetch('/api/voice', {
         method: 'POST',
         body: formData,
       });
 
+      console.log('Response status:', response.status);
+      
       if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
+        const errorText = await response.text();
+        console.error('Response error:', errorText);
+        throw new Error(`HTTP error! status: ${response.status} - ${errorText}`);
       }
 
       const data = await response.json();
+      console.log('Response data:', data);
       
       // Check for purchase commands in reply
       const replyText = data.reply?.toLowerCase() || '';
@@ -94,15 +101,15 @@ export const VoiceAssistant = () => {
         return;
       }
 
-      setTranscription(data.reply);
+      setTranscription(data.reply || 'No response received');
       setAiResponse({
-        message: data.reply,
-        products: [] // Your endpoint can include products if needed
+        message: data.reply || 'No response received',
+        products: data.products || [] // Your endpoint can include products if needed
       });
       toast.success("Voice processed successfully!");
     } catch (error) {
-      toast.error("Failed to process your request");
-      console.error(error);
+      console.error('Audio processing error:', error);
+      toast.error(`Failed to process audio: ${error.message}`);
     } finally {
       setIsProcessing(false);
     }
