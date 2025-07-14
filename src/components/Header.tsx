@@ -1,8 +1,37 @@
 import { Link } from "react-router-dom";
-import { ShoppingCart, User, Search, Menu } from "lucide-react";
+import { ShoppingCart, User, Search, Menu, LogOut } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { useState, useEffect } from "react";
+import { supabase } from "@/integrations/supabase/client";
+import { User as SupabaseUser } from "@supabase/supabase-js";
+import { toast } from "sonner";
 
 export const Header = () => {
+  const [user, setUser] = useState<SupabaseUser | null>(null);
+
+  useEffect(() => {
+    // Get initial session
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setUser(session?.user ?? null);
+    });
+
+    // Listen for auth changes
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      setUser(session?.user ?? null);
+    });
+
+    return () => subscription.unsubscribe();
+  }, []);
+
+  const handleSignOut = async () => {
+    const { error } = await supabase.auth.signOut();
+    if (error) {
+      toast.error("Error signing out");
+    } else {
+      toast.success("Signed out successfully");
+    }
+  };
+
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <div className="container flex h-16 items-center justify-between px-4">
@@ -58,16 +87,32 @@ export const Header = () => {
             </Link>
           </Button>
           
-          <Link to="/login">
-            <Button variant="outline" size="sm" className="hidden sm:flex">
-              <User className="h-4 w-4 mr-2" />
-              Sign In
+          {user ? (
+            <Button 
+              variant="outline" 
+              size="sm" 
+              className="hidden sm:flex"
+              onClick={handleSignOut}
+            >
+              <LogOut className="h-4 w-4 mr-2" />
+              Sign Out
             </Button>
-          </Link>
-          
-          <Button variant="default" size="sm" className="hidden sm:flex">
-            Get Started
-          </Button>
+          ) : (
+            <>
+              <Link to="/auth">
+                <Button variant="outline" size="sm" className="hidden sm:flex">
+                  <User className="h-4 w-4 mr-2" />
+                  Sign In
+                </Button>
+              </Link>
+              
+              <Link to="/auth">
+                <Button variant="default" size="sm" className="hidden sm:flex">
+                  Get Started
+                </Button>
+              </Link>
+            </>
+          )}
           
           {/* Mobile menu */}
           <Button variant="ghost" size="icon" className="md:hidden">

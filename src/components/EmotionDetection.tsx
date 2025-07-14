@@ -221,7 +221,7 @@ export const EmotionDetection = () => {
           <CardHeader>
             <CardTitle>Recommended for You</CardTitle>
             <p className="text-muted-foreground">
-              Based on your current mood, here are some perfect picks:
+              Based on your current mood, here are some perfect picks. Click on any product to view details or add to cart:
             </p>
           </CardHeader>
           <CardContent>
@@ -235,9 +235,14 @@ export const EmotionDetection = () => {
                   />
                   <h3 className="font-semibold">{product.name}</h3>
                   <p className="text-2xl font-bold text-primary">${product.price}</p>
-                  <Badge variant="outline" className="mt-2">
-                    {product.category}
-                  </Badge>
+                  <div className="flex items-center justify-between mt-2">
+                    <Badge variant="outline">
+                      {product.category}
+                    </Badge>
+                    <Button size="sm" className="px-3">
+                      Add to Cart
+                    </Button>
+                  </div>
                 </div>
               ))}
             </div>

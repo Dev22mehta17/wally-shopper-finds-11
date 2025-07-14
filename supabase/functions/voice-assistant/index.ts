@@ -51,7 +51,7 @@ serve(async (req) => {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        model: 'gpt-4',
+        model: 'gpt-4o-mini',
         messages: [
           {
             role: 'system',
@@ -75,7 +75,29 @@ serve(async (req) => {
     });
 
     const gptData = await gptResponse.json();
-    const aiResponse = JSON.parse(gptData.choices[0].message.content);
+    
+    if (!gptResponse.ok) {
+      throw new Error(`OpenAI API error: ${gptData.error?.message || 'Unknown error'}`);
+    }
+    
+    let aiResponse;
+    try {
+      aiResponse = JSON.parse(gptData.choices[0].message.content);
+    } catch (parseError) {
+      // Fallback if JSON parsing fails
+      aiResponse = {
+        message: "I found some great products for you!",
+        products: [
+          {
+            name: "Featured Product",
+            price: 29.99,
+            category: "Popular",
+            description: "Highly recommended item based on your request",
+            rating: 4.5
+          }
+        ]
+      };
+    }
 
     return new Response(
       JSON.stringify({
