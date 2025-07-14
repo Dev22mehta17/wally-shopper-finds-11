@@ -4,7 +4,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Index from "./pages/Index";
-import Login from "./pages/Login";
+import Auth from "./pages/Auth";
 import Products from "./pages/Products";
 import Recommendations from "./pages/Recommendations";
 import EmotionShopping from "./pages/EmotionShopping";
@@ -23,7 +23,9 @@ const App = () => (
       <BrowserRouter>
         <Routes>
           <Route path="/" element={<Index />} />
-          <Route path="/login" element={<Login />} />
+          <Route path="/login" element={<Auth />} />
+          <Route path="/signup" element={<Auth />} />
+          <Route path="/auth" element={<Auth />} />
           <Route path="/products" element={<Products />} />
           <Route path="/recommendations" element={<Recommendations />} />
           <Route path="/emotion-shopping" element={<EmotionShopping />} />
