@@ -1,6 +1,6 @@
 # Welcome to My project
 
-Deployed Link-https://wally-shopper-finds-11.lovable.app
+Deployed Link-https://wally-shopper-finds-71.lovable.app
 
 ## Project info
 
