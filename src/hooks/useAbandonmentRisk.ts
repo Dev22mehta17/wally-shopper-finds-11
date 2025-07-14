@@ -123,7 +123,7 @@ export const useAbandonmentRisk = (cartItems: CartItemData[]) => {
       document.removeEventListener('scroll', trackScroll);
       clearInterval(idleTimer);
     };
-  }, [lastActivity]);
+  }, []); // Remove lastActivity dependency to prevent infinite loop
 
   const calculateRisk = useCallback(() => {
     if (cartItems.length === 0) {

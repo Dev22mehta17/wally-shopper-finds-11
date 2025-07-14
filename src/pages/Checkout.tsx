@@ -74,8 +74,64 @@ export default function Checkout() {
     setIsProcessing(false);
   };
 
+  const [isVoiceActive, setIsVoiceActive] = useState(false);
+
   const handleVoicePurchase = () => {
-    toast.success("Voice purchase activated! Say 'Buy this now' to complete your order.");
+    if (!isVoiceActive) {
+      setIsVoiceActive(true);
+      toast.success("Voice purchase activated! Say 'Buy this now' to complete your order.");
+      startVoiceListening();
+    } else {
+      setIsVoiceActive(false);
+      toast.info("Voice purchase deactivated.");
+    }
+  };
+
+  const startVoiceListening = () => {
+    if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
+      toast.error("Speech recognition not supported in this browser");
+      return;
+    }
+
+    const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
+    const recognition = new SpeechRecognition();
+    
+    recognition.continuous = true;
+    recognition.interimResults = true;
+    recognition.lang = 'en-US';
+
+    recognition.onresult = (event) => {
+      const transcript = Array.from(event.results)
+        .map(result => result[0].transcript)
+        .join('')
+        .toLowerCase();
+
+      if (transcript.includes('buy this now') || transcript.includes('purchase now') || transcript.includes('complete order')) {
+        recognition.stop();
+        setIsVoiceActive(false);
+        handlePurchase();
+        toast.success("Voice command recognized! Processing your order...");
+      }
+    };
+
+    recognition.onerror = (event) => {
+      console.error('Speech recognition error:', event.error);
+      setIsVoiceActive(false);
+      toast.error("Voice recognition error. Please try again.");
+    };
+
+    recognition.onend = () => {
+      if (isVoiceActive) {
+        // Restart recognition if still active
+        setTimeout(() => {
+          if (isVoiceActive) {
+            recognition.start();
+          }
+        }, 100);
+      }
+    };
+
+    recognition.start();
   };
 
   return (
@@ -188,8 +244,12 @@ export default function Checkout() {
                 <CardDescription>Enable one-click voice purchasing</CardDescription>
               </CardHeader>
               <CardContent>
-                <Button onClick={handleVoicePurchase} variant="outline" className="w-full">
-                  Activate Voice Purchase
+                <Button 
+                  onClick={handleVoicePurchase} 
+                  variant={isVoiceActive ? "default" : "outline"} 
+                  className="w-full"
+                >
+                  {isVoiceActive ? "🎤 Listening... (Click to stop)" : "Activate Voice Purchase"}
                 </Button>
                 <p className="text-xs text-muted-foreground mt-2">
                   Once activated, say "Buy this now" to complete your order instantly
