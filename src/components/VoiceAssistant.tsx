@@ -119,17 +119,26 @@ export const VoiceAssistant = () => {
     
     setIsProcessing(true);
     try {
-      const { data, error } = await supabase.functions.invoke('voice-assistant', {
-        body: { query },
+      const response = await fetch('/api/voice', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ text: query }),
       });
 
-      if (error) {
-        throw new Error(error.message);
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
       }
 
-      setTranscription(data.transcription);
-      setAiResponse(data.response);
-      toast.success("Found some great suggestions for you!");
+      const data = await response.json();
+      
+      setTranscription(query);
+      setAiResponse({
+        message: data.reply,
+        products: [] // Your endpoint can include products if needed
+      });
+      toast.success("Text processed successfully!");
     } catch (error) {
       toast.error("Failed to process your request");
       console.error(error);
