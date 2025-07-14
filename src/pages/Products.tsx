@@ -1,4 +1,5 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useSearchParams } from "react-router-dom";
 import { Header } from "@/components/Header";
 import { ProductCard } from "@/components/ProductCard";
 import { Button } from "@/components/ui/button";
@@ -115,10 +116,19 @@ const mockProducts: Product[] = [
 const categories = ["All", "Electronics", "Fashion", "Home", "Sports", "Food"];
 
 export default function Products() {
+  const [searchParams] = useSearchParams();
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("All");
   const [sortBy, setSortBy] = useState("featured");
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
+
+  // Update search term when URL search param changes
+  useEffect(() => {
+    const urlSearchTerm = searchParams.get("search");
+    if (urlSearchTerm) {
+      setSearchTerm(urlSearchTerm);
+    }
+  }, [searchParams]);
 
   const filteredProducts = mockProducts
     .filter(product => 
