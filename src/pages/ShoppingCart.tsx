@@ -10,42 +10,23 @@ import { Separator } from "@/components/ui/separator";
 import { ShoppingCart as ShoppingCartIcon, CreditCard, Truck, Shield, AlertTriangle } from "lucide-react";
 import { toast } from "sonner";
 import { Link } from "react-router-dom";
-
-// Mock cart data for demo
-const mockCartItems: CartItemData[] = [
-  {
-    id: "1",
-    name: "Wireless Bluetooth Headphones",
-    price: 79.99,
-    quantity: 1,
-    category: "Electronics",
-    rating: 4.5,
-    addedAt: new Date(Date.now() - 300000) // 5 minutes ago
-  },
-  {
-    id: "2", 
-    name: "Cozy Winter Sweater",
-    price: 34.99,
-    quantity: 2,
-    category: "Clothing",
-    rating: 4.2,
-    addedAt: new Date(Date.now() - 180000) // 3 minutes ago
-  },
-  {
-    id: "3",
-    name: "Organic Green Tea",
-    price: 12.99,
-    quantity: 1,
-    category: "Food",
-    rating: 4.8,
-    addedAt: new Date(Date.now() - 120000) // 2 minutes ago
-  }
-];
+import { useCart } from "@/contexts/CartContext";
 
 export default function ShoppingCart() {
-  const [cartItems, setCartItems] = useState<CartItemData[]>(mockCartItems);
+  const { items, updateQuantity, removeItem, itemCount, totalPrice } = useCart();
   const [showRiskModal, setShowRiskModal] = useState(false);
   const [hasShownRiskModal, setHasShownRiskModal] = useState(false);
+  
+  // Convert cart items to CartItemData format for compatibility
+  const cartItems: CartItemData[] = items.map(item => ({
+    id: item.id,
+    name: item.name,
+    price: item.price,
+    quantity: item.quantity,
+    category: item.category,
+    rating: item.rating,
+    addedAt: item.addedAt
+  }));
   
   const riskData = useAbandonmentRisk(cartItems);
 
@@ -61,17 +42,8 @@ export default function ShoppingCart() {
     }
   }, [riskData, hasShownRiskModal, cartItems.length]);
 
-  const updateQuantity = (id: string, quantity: number) => {
-    setCartItems(items => 
-      items.map(item => 
-        item.id === id ? { ...item, quantity } : item
-      )
-    );
-  };
-
-  const removeItem = (id: string) => {
-    setCartItems(items => items.filter(item => item.id !== id));
-    toast.success("Item removed from cart");
+  const handleRemoveItem = (id: string) => {
+    removeItem(id);
   };
 
   const handleAcceptOffer = () => {
@@ -79,12 +51,10 @@ export default function ShoppingCart() {
     setShowRiskModal(false);
   };
 
-  const subtotal = cartItems.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+  const subtotal = totalPrice;
   const tax = subtotal * 0.08;
   const shipping = subtotal > 50 ? 0 : 9.99;
   const total = subtotal + tax + shipping;
-
-  const itemCount = cartItems.reduce((sum, item) => sum + item.quantity, 0);
 
   return (
     <div className="min-h-screen bg-background">
@@ -140,7 +110,7 @@ export default function ShoppingCart() {
                   key={item.id}
                   item={item}
                   onUpdateQuantity={updateQuantity}
-                  onRemove={removeItem}
+                  onRemove={handleRemoveItem}
                 />
               ))
             )}

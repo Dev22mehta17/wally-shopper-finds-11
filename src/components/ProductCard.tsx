@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Star, ShoppingCart, Heart, Eye, Zap } from "lucide-react";
 import { toast } from "sonner";
+import { useCart } from "@/contexts/CartContext";
 
 interface Product {
   id: number;
@@ -26,9 +27,16 @@ interface ProductCardProps {
 export const ProductCard = ({ product, viewMode = "grid" }: ProductCardProps) => {
   const [isLiked, setIsLiked] = useState(false);
   const [isHovered, setIsHovered] = useState(false);
+  const { addItem } = useCart();
 
   const handleAddToCart = () => {
-    toast.success(`${product.name} added to cart!`);
+    addItem({
+      name: product.name,
+      price: product.price,
+      category: product.category,
+      rating: product.rating,
+      image: product.image
+    });
   };
 
   const handleToggleLike = () => {

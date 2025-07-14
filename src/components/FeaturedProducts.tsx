@@ -4,6 +4,7 @@ import { Badge } from "@/components/ui/badge";
 import { Star, ShoppingCart, Heart, Eye } from "lucide-react";
 import { Link } from "react-router-dom";
 import { toast } from "sonner";
+import { useCart } from "@/contexts/CartContext";
 
 const featuredProducts = [
   {
@@ -57,8 +58,16 @@ const featuredProducts = [
 ];
 
 export const FeaturedProducts = () => {
+  const { addItem } = useCart();
+
   const handleAddToCart = (product: typeof featuredProducts[0]) => {
-    toast.success(`${product.name} added to cart!`);
+    addItem({
+      name: product.name,
+      price: product.price,
+      category: product.category,
+      rating: product.rating,
+      image: product.image
+    });
   };
 
   const handleLike = (product: typeof featuredProducts[0]) => {

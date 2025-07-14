@@ -5,11 +5,13 @@ import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { User as SupabaseUser } from "@supabase/supabase-js";
 import { toast } from "sonner";
+import { useCart } from "@/contexts/CartContext";
 
 export const Header = () => {
   const [user, setUser] = useState<SupabaseUser | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
   const navigate = useNavigate();
+  const { itemCount } = useCart();
 
   useEffect(() => {
     // Get initial session
@@ -103,9 +105,11 @@ export const Header = () => {
           <Button variant="ghost" size="icon" className="relative" asChild>
             <Link to="/cart">
               <ShoppingCart className="h-5 w-5" />
-              <span className="absolute -top-1 -right-1 h-4 w-4 bg-primary text-primary-foreground rounded-full flex items-center justify-center text-xs">
-                3
-              </span>
+              {itemCount > 0 && (
+                <span className="absolute -top-1 -right-1 h-4 w-4 bg-primary text-primary-foreground rounded-full flex items-center justify-center text-xs">
+                  {itemCount}
+                </span>
+              )}
             </Link>
           </Button>
           
