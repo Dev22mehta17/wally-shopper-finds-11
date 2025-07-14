@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { Header } from "@/components/Header";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -6,8 +7,10 @@ import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
-import { CreditCard, Wallet, ShoppingBag, Check, Star } from "lucide-react";
+import { CreditCard, Wallet, ShoppingBag, Check, Star, PartyPopper } from "lucide-react";
 import { toast } from "sonner";
+import { useCart } from "@/contexts/CartContext";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 
 // Mock data for stored payment methods
 const mockPaymentMethods = [
@@ -55,9 +58,12 @@ const cartItems = [
 ];
 
 export default function Checkout() {
+  const navigate = useNavigate();
+  const { clearCart } = useCart();
   const [selectedPayment, setSelectedPayment] = useState("card_1");
   const [usePoints, setUsePoints] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
+  const [showSuccessDialog, setShowSuccessDialog] = useState(false);
 
   const subtotal = cartItems.reduce((sum, item) => sum + (item.price * item.quantity), 0);
   const tax = subtotal * 0.08; // 8% tax
@@ -70,8 +76,16 @@ export default function Checkout() {
     // Mock purchase processing
     await new Promise(resolve => setTimeout(resolve, 2000));
     
-    toast.success("Purchase completed successfully!");
+    // Clear the cart and show success dialog
+    clearCart();
     setIsProcessing(false);
+    setShowSuccessDialog(true);
+    
+    // Auto redirect to home after 3 seconds
+    setTimeout(() => {
+      setShowSuccessDialog(false);
+      navigate('/');
+    }, 3000);
   };
 
   const [isVoiceActive, setIsVoiceActive] = useState(false);
@@ -324,6 +338,39 @@ export default function Checkout() {
             </Card>
           </div>
         </div>
+
+        {/* Success Dialog */}
+        <Dialog open={showSuccessDialog} onOpenChange={setShowSuccessDialog}>
+          <DialogContent className="sm:max-w-md text-center">
+            <DialogHeader>
+              <div className="flex justify-center mb-4">
+                <div className="w-16 h-16 bg-green-100 dark:bg-green-900/20 rounded-full flex items-center justify-center">
+                  <PartyPopper className="w-8 h-8 text-green-600 dark:text-green-400" />
+                </div>
+              </div>
+              <DialogTitle className="text-2xl font-bold text-green-600 dark:text-green-400">
+                Purchase Completed!
+              </DialogTitle>
+              <DialogDescription className="text-lg mt-2">
+                Enjoy your products and shop more amazing deals!
+              </DialogDescription>
+            </DialogHeader>
+            <div className="mt-6">
+              <p className="text-sm text-muted-foreground">
+                Redirecting to home page in a few seconds...
+              </p>
+              <Button 
+                onClick={() => {
+                  setShowSuccessDialog(false);
+                  navigate('/');
+                }}
+                className="mt-4 w-full"
+              >
+                Continue Shopping
+              </Button>
+            </div>
+          </DialogContent>
+        </Dialog>
       </div>
     </div>
   );
