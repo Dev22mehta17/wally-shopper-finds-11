@@ -23,6 +23,7 @@ export const VoiceAssistant = () => {
   const [isProcessing, setIsProcessing] = useState(false);
   const [transcription, setTranscription] = useState("");
   const [aiResponse, setAiResponse] = useState<AIResponse | null>(null);
+  const [apiKey, setApiKey] = useState("");
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const audioChunksRef = useRef<Blob[]>([]);
 
@@ -61,25 +62,63 @@ export const VoiceAssistant = () => {
   };
 
   const processAudio = async (audioBlob: Blob) => {
-    try {
-      const arrayBuffer = await audioBlob.arrayBuffer();
-      const base64Audio = btoa(String.fromCharCode(...new Uint8Array(arrayBuffer)));
+    if (!apiKey.trim()) {
+      toast.error("Please enter your OpenAI API key first");
+      return;
+    }
 
-      const response = await fetch('/functions/v1/voice-assistant', {
+    try {
+      // Use OpenAI Whisper API directly
+      const formData = new FormData();
+      formData.append('file', audioBlob, 'audio.webm');
+      formData.append('model', 'whisper-1');
+
+      const whisperResponse = await fetch('https://api.openai.com/v1/audio/transcriptions', {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${apiKey}`,
         },
-        body: JSON.stringify({ audio: base64Audio }),
+        body: formData,
       });
 
-      if (!response.ok) {
-        throw new Error('Failed to process audio');
-      }
+      const whisperData = await whisperResponse.json();
+      const transcription = whisperData.text;
+      setTranscription(transcription);
 
-      const data = await response.json();
-      setTranscription(data.transcription);
-      setAiResponse(data.response);
+      // Use GPT-4 for product suggestions
+      const gptResponse = await fetch('https://api.openai.com/v1/chat/completions', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${apiKey}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          model: 'gpt-4o-mini',
+          messages: [
+            {
+              role: 'system',
+              content: `You are a helpful shopping assistant for Walmart. Given a user's request, suggest 3-5 relevant products. 
+              Respond with a JSON object containing:
+              - "message": A friendly response to the user
+              - "products": Array of products with "name", "price", "category", "description", "rating" fields
+              
+              Example categories: Electronics, Clothing, Home & Garden, Sports, Books, Food, etc.
+              Prices should be realistic Walmart prices.
+              Ratings should be between 3.5-5.0.`
+            },
+            {
+              role: 'user',
+              content: transcription
+            }
+          ],
+          temperature: 0.7,
+          max_tokens: 1000,
+        }),
+      });
+
+      const gptData = await gptResponse.json();
+      const aiResponse = JSON.parse(gptData.choices[0].message.content);
+      setAiResponse(aiResponse);
       toast.success("Found some great suggestions for you!");
     } catch (error) {
       toast.error("Failed to process your request");
@@ -91,24 +130,47 @@ export const VoiceAssistant = () => {
 
   const processTextQuery = async (query: string) => {
     if (!query.trim()) return;
+    if (!apiKey.trim()) {
+      toast.error("Please enter your OpenAI API key first");
+      return;
+    }
     
     setIsProcessing(true);
     try {
-      const response = await fetch('/functions/v1/voice-assistant', {
+      const gptResponse = await fetch('https://api.openai.com/v1/chat/completions', {
         method: 'POST',
         headers: {
+          'Authorization': `Bearer ${apiKey}`,
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ query }),
+        body: JSON.stringify({
+          model: 'gpt-4o-mini',
+          messages: [
+            {
+              role: 'system',
+              content: `You are a helpful shopping assistant for Walmart. Given a user's request, suggest 3-5 relevant products. 
+              Respond with a JSON object containing:
+              - "message": A friendly response to the user
+              - "products": Array of products with "name", "price", "category", "description", "rating" fields
+              
+              Example categories: Electronics, Clothing, Home & Garden, Sports, Books, Food, etc.
+              Prices should be realistic Walmart prices.
+              Ratings should be between 3.5-5.0.`
+            },
+            {
+              role: 'user',
+              content: query
+            }
+          ],
+          temperature: 0.7,
+          max_tokens: 1000,
+        }),
       });
 
-      if (!response.ok) {
-        throw new Error('Failed to process query');
-      }
-
-      const data = await response.json();
-      setTranscription(data.transcription);
-      setAiResponse(data.response);
+      const gptData = await gptResponse.json();
+      const aiResponse = JSON.parse(gptData.choices[0].message.content);
+      setTranscription(query);
+      setAiResponse(aiResponse);
       toast.success("Found some great suggestions for you!");
     } catch (error) {
       toast.error("Failed to process your request");
@@ -132,6 +194,24 @@ export const VoiceAssistant = () => {
           </CardDescription>
         </CardHeader>
         <CardContent className="text-center space-y-4">
+          {/* API Key Input */}
+          <div className="mb-4 p-3 bg-muted/50 rounded-lg">
+            <p className="text-sm font-medium mb-2">Enter your OpenAI API Key:</p>
+            <input
+              type="password"
+              placeholder="sk-..."
+              value={apiKey}
+              onChange={(e) => setApiKey(e.target.value)}
+              className="w-full px-3 py-2 border border-input rounded-lg bg-background focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+            />
+            <p className="text-xs text-muted-foreground mt-1">
+              Get your API key from{" "}
+              <a href="https://platform.openai.com/api-keys" target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">
+                OpenAI Platform
+              </a>
+            </p>
+          </div>
+
           <div className="flex justify-center gap-4">
             <Button
               onClick={isListening ? stopListening : startListening}
