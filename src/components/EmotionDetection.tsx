@@ -2,12 +2,9 @@ import { useState, useRef, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Camera, CameraOff, Brain, Sparkles } from "lucide-react";
-import { pipeline, env } from "@huggingface/transformers";
-
-// Disable local models, use remote models
-env.allowRemoteModels = true;
-env.allowLocalModels = false;
+import { Camera, CameraOff, Brain, Sparkles, ShoppingCart } from "lucide-react";
+import { useCart } from "@/contexts/CartContext";
+import { toast } from "sonner";
 
 interface EmotionResult {
   emotion: string;
@@ -45,15 +42,21 @@ export const EmotionDetection = () => {
   const [emotion, setEmotion] = useState<EmotionResult | null>(null);
   const [recommendedProducts, setRecommendedProducts] = useState<Product[]>([]);
   const [isLoading, setIsLoading] = useState(false);
+  const [hasDetected, setHasDetected] = useState(false);
   const videoRef = useRef<HTMLVideoElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const [classifier, setClassifier] = useState<any>(null);
+  const { addItem } = useCart();
 
-  // Simplified emotion detection without Hugging Face
-  useEffect(() => {
-    // Mock classifier for demo - in real app you'd use a proper ML model
-    setClassifier({ initialized: true });
-  }, []);
+  const handleAddToCart = (product: Product) => {
+    addItem({
+      name: product.name,
+      price: product.price,
+      image: "🛍️",
+      category: product.category,
+      rating: 4.5
+    });
+    toast.success(`${product.name} added to cart!`);
+  };
 
   const startCamera = async () => {
     try {
@@ -69,6 +72,7 @@ export const EmotionDetection = () => {
       }
     } catch (error) {
       console.error('Camera access denied:', error);
+      toast.error('Camera access denied. Please allow camera access to use emotion detection.');
     } finally {
       setIsLoading(false);
     }
@@ -81,17 +85,21 @@ export const EmotionDetection = () => {
       videoRef.current.srcObject = null;
     }
     setIsActive(false);
+    // Keep showing recommendations after stopping camera
+    if (emotion && recommendedProducts.length > 0) {
+      setHasDetected(true);
+      toast.success('Emotion detected! Check out our recommendations below.');
+    }
   };
 
   const startEmotionDetection = async () => {
-    if (!classifier || !videoRef.current) return;
+    if (!videoRef.current) return;
 
     const detectEmotion = async () => {
       if (!isActive || !videoRef.current) return;
       
       try {
         // Mock emotion detection for demo purposes
-        // In a real app, you'd use actual computer vision
         const mockEmotions = ['happy', 'sad', 'neutral', 'surprised', 'angry'];
         const randomEmotion = mockEmotions[Math.floor(Math.random() * mockEmotions.length)];
         const confidence = 0.7 + Math.random() * 0.3; // 70-100% confidence
@@ -103,7 +111,10 @@ export const EmotionDetection = () => {
         };
         
         setEmotion(newEmotion);
+        setHasDetected(true);
         updateRecommendations(newEmotion.emotion);
+        
+        toast.success(`Detected ${randomEmotion} emotion! Processing recommendations...`);
       } catch (error) {
         console.error('Emotion detection error:', error);
       }
@@ -239,7 +250,12 @@ export const EmotionDetection = () => {
                     <Badge variant="outline">
                       {product.category}
                     </Badge>
-                    <Button size="sm" className="px-3">
+                    <Button 
+                      size="sm" 
+                      className="px-3"
+                      onClick={() => handleAddToCart(product)}
+                    >
+                      <ShoppingCart className="h-3 w-3 mr-1" />
                       Add to Cart
                     </Button>
                   </div>
