@@ -2,6 +2,8 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Star, ShoppingCart, Heart, Eye } from "lucide-react";
+import { Link } from "react-router-dom";
+import { toast } from "sonner";
 
 const featuredProducts = [
   {
@@ -55,6 +57,18 @@ const featuredProducts = [
 ];
 
 export const FeaturedProducts = () => {
+  const handleAddToCart = (product: typeof featuredProducts[0]) => {
+    toast.success(`${product.name} added to cart!`);
+  };
+
+  const handleLike = (product: typeof featuredProducts[0]) => {
+    toast.success(`${product.name} added to wishlist!`);
+  };
+
+  const handlePreview = (product: typeof featuredProducts[0]) => {
+    toast.info(`Viewing ${product.name}`);
+  };
+
   return (
     <section className="py-16 bg-muted/50">
       <div className="container px-4">
@@ -84,11 +98,21 @@ export const FeaturedProducts = () => {
                   <Badge className="absolute top-2 left-2 bg-primary text-primary-foreground">
                     {product.discount}
                   </Badge>
-                  <div className="absolute top-2 right-2 flex flex-col gap-1">
-                    <Button size="icon" variant="ghost" className="h-8 w-8 bg-white/80 hover:bg-white">
+                   <div className="absolute top-2 right-2 flex flex-col gap-1">
+                    <Button 
+                      size="icon" 
+                      variant="ghost" 
+                      className="h-8 w-8 bg-white/80 hover:bg-white"
+                      onClick={() => handleLike(product)}
+                    >
                       <Heart className="h-4 w-4" />
                     </Button>
-                    <Button size="icon" variant="ghost" className="h-8 w-8 bg-white/80 hover:bg-white">
+                    <Button 
+                      size="icon" 
+                      variant="ghost" 
+                      className="h-8 w-8 bg-white/80 hover:bg-white"
+                      onClick={() => handlePreview(product)}
+                    >
                       <Eye className="h-4 w-4" />
                     </Button>
                   </div>
@@ -134,7 +158,11 @@ export const FeaturedProducts = () => {
               </CardContent>
               
               <CardFooter className="p-4 pt-0">
-                <Button className="w-full" variant="default">
+                <Button 
+                  className="w-full" 
+                  variant="default"
+                  onClick={() => handleAddToCart(product)}
+                >
                   <ShoppingCart className="mr-2 h-4 w-4" />
                   Add to Cart
                 </Button>
@@ -144,9 +172,11 @@ export const FeaturedProducts = () => {
         </div>
         
         <div className="text-center mt-8">
-          <Button variant="outline" size="lg">
-            View All Products
-          </Button>
+          <Link to="/products">
+            <Button variant="outline" size="lg">
+              View All Products
+            </Button>
+          </Link>
         </div>
       </div>
     </section>

@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { useSearchParams } from "react-router-dom";
+import { toast } from "sonner";
 import { Header } from "@/components/Header";
 import { ProductCard } from "@/components/ProductCard";
 import { Button } from "@/components/ui/button";
@@ -125,8 +126,10 @@ export default function Products() {
   // Update search term when URL search param changes
   useEffect(() => {
     const urlSearchTerm = searchParams.get("search");
+    console.log("URL search parameter:", urlSearchTerm);
     if (urlSearchTerm) {
       setSearchTerm(urlSearchTerm);
+      toast.info(`Searching for "${urlSearchTerm}"`);
     }
   }, [searchParams]);
 

@@ -170,20 +170,22 @@ export const VoiceAssistant = () => {
             <p className="text-sm text-muted-foreground mb-2">Or type your request:</p>
             <div className="flex gap-2">
               <input
+                id="text-input"
                 type="text"
                 placeholder="Type your shopping request..."
                 className="flex-1 px-3 py-2 border border-input rounded-lg bg-background focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
                 onKeyPress={(e) => {
                   if (e.key === 'Enter') {
-                    processTextQuery(e.currentTarget.value);
-                    e.currentTarget.value = '';
+                    const target = e.target as HTMLInputElement;
+                    processTextQuery(target.value);
+                    target.value = '';
                   }
                 }}
               />
               <Button
                 onClick={() => {
-                  const input = document.querySelector('input[type="text"]') as HTMLInputElement;
-                  if (input) {
+                  const input = document.getElementById('text-input') as HTMLInputElement;
+                  if (input && input.value.trim()) {
                     processTextQuery(input.value);
                     input.value = '';
                   }

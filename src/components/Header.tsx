@@ -36,14 +36,20 @@ export const Header = () => {
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
+    console.log("Search submitted:", searchQuery);
     if (searchQuery.trim()) {
+      console.log("Navigating to products with search:", searchQuery.trim());
       navigate(`/products?search=${encodeURIComponent(searchQuery.trim())}`);
       setSearchQuery("");
+      toast.success(`Searching for "${searchQuery.trim()}"`);
+    } else {
+      toast.error("Please enter a search term");
     }
   };
 
   const handleSearchInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setSearchQuery(e.target.value);
+    console.log("Search query changed:", e.target.value);
   };
 
   return (
