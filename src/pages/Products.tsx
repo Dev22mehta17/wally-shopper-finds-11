@@ -111,6 +111,30 @@ const mockProducts: Product[] = [
     category: "Home",
     image: "🕯️",
     description: "Relaxing aromatherapy candles set"
+  },
+  {
+    id: 9,
+    name: "Premium Running Shoes",
+    price: 129.99,
+    originalPrice: 149.99,
+    rating: 4.7,
+    reviews: 892,
+    category: "Fashion",
+    image: "👟",
+    badge: "Sale",
+    description: "Lightweight and comfortable running shoes with advanced cushioning"
+  },
+  {
+    id: 10,
+    name: "Cotton Casual T-Shirt",
+    price: 19.99,
+    originalPrice: 29.99,
+    rating: 4.5,
+    reviews: 456,
+    category: "Fashion",
+    image: "👕",
+    badge: "Popular",
+    description: "Soft and breathable cotton t-shirt for everyday wear"
   }
 ];
 
