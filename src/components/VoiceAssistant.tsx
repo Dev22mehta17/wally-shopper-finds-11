@@ -4,6 +4,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Badge } from "@/components/ui/badge";
 import { Mic, MicOff, Loader2, Star, ShoppingCart } from "lucide-react";
 import { toast } from "sonner";
+import { supabase } from "@/integrations/supabase/client";
 
 interface Product {
   name: string;
@@ -65,19 +66,14 @@ export const VoiceAssistant = () => {
       const arrayBuffer = await audioBlob.arrayBuffer();
       const base64Audio = btoa(String.fromCharCode(...new Uint8Array(arrayBuffer)));
 
-      const response = await fetch('/functions/v1/voice-assistant', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ audio: base64Audio }),
+      const { data, error } = await supabase.functions.invoke('voice-assistant', {
+        body: { audio: base64Audio },
       });
 
-      if (!response.ok) {
-        throw new Error('Failed to process audio');
+      if (error) {
+        throw new Error(error.message);
       }
 
-      const data = await response.json();
       setTranscription(data.transcription);
       setAiResponse(data.response);
       toast.success("Found some great suggestions for you!");
@@ -94,19 +90,14 @@ export const VoiceAssistant = () => {
     
     setIsProcessing(true);
     try {
-      const response = await fetch('/functions/v1/voice-assistant', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ query }),
+      const { data, error } = await supabase.functions.invoke('voice-assistant', {
+        body: { query },
       });
 
-      if (!response.ok) {
-        throw new Error('Failed to process query');
+      if (error) {
+        throw new Error(error.message);
       }
 
-      const data = await response.json();
       setTranscription(data.transcription);
       setAiResponse(data.response);
       toast.success("Found some great suggestions for you!");
