@@ -27,6 +27,9 @@ export const Header = () => {
           <Link to="/emotion-shopping" className="text-foreground hover:text-primary transition-colors">
             AI Shopping
           </Link>
+          <Link to="/voice-shopping" className="text-foreground hover:text-primary transition-colors">
+            Voice Assistant
+          </Link>
           <Link to="/products" className="text-foreground hover:text-primary transition-colors">
             Products
           </Link>

@@ -7,6 +7,7 @@ import Index from "./pages/Index";
 import Login from "./pages/Login";
 import Recommendations from "./pages/Recommendations";
 import EmotionShopping from "./pages/EmotionShopping";
+import VoiceShopping from "./pages/VoiceShopping";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -22,6 +23,7 @@ const App = () => (
           <Route path="/login" element={<Login />} />
           <Route path="/recommendations" element={<Recommendations />} />
           <Route path="/emotion-shopping" element={<EmotionShopping />} />
+          <Route path="/voice-shopping" element={<VoiceShopping />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>
