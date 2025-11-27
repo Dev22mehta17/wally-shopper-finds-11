@@ -125,18 +125,24 @@ export const Header = () => {
             </Button>
           ) : (
             <>
-              <Link to="/auth">
-                <Button variant="outline" size="sm" className="hidden sm:flex">
-                  <User className="h-4 w-4 mr-2" />
-                  Sign In
-                </Button>
-              </Link>
+              <Button 
+                variant="outline" 
+                size="sm" 
+                className="hidden sm:flex"
+                onClick={() => navigate('/auth')}
+              >
+                <User className="h-4 w-4 mr-2" />
+                Sign In
+              </Button>
               
-              <Link to="/auth">
-                <Button variant="default" size="sm" className="hidden sm:flex">
-                  Get Started
-                </Button>
-              </Link>
+              <Button 
+                variant="default" 
+                size="sm" 
+                className="hidden sm:flex"
+                onClick={() => navigate('/auth')}
+              >
+                Get Started
+              </Button>
             </>
           )}
           
